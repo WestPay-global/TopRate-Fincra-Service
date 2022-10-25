@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Fincra.Models;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Globalization;
@@ -13,21 +14,21 @@ namespace Fincra.Service
     public class FincraService : IFincra
     {
         private readonly string api_key;
-        private readonly HttpClient apiClient; 
-        private string beneficaryUrl = @"http://localhost:5011/api/Beneficary/";
+        private readonly HttpClient apiClient;
         private string baseUrl = @"https://sandboxapi.fincra.com";
-
         private readonly IMapper _mapper;
-        public FincraService(IMapper mapper) 
+        private readonly IConfiguration _configuration;
+
+        public FincraService(IMapper mapper, IConfiguration configuration)
         {
             this.api_key = "R0qiVNOA7gxfLBpAhNLbvv1JeyiHCV0Y";
             apiClient = new HttpClient();
 
             apiClient.DefaultRequestHeaders.Accept.Clear();
             apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            apiClient.DefaultRequestHeaders.Add("api-key", this.api_key);    
-            
+            apiClient.DefaultRequestHeaders.Add("api-key", this.api_key);
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         private async Task<Beneficiary> GetBeneficiaryAsync(string url)
@@ -45,10 +46,9 @@ namespace Fincra.Service
         {
             try
             {
-                string beneficiaryUrl = this.beneficaryUrl + $@"GetBeneficary/ById?id={createPayoutVm.beneficiaryId}";
+                string beneficaryUrl = $"{_configuration["BeneficiaryServiceBaseUrl"]}api/Beneficary/";
+                string beneficiaryUrl = beneficaryUrl + $@"GetBeneficary/ById?id={createPayoutVm.beneficiaryId}";
                 var beneficiary = await GetBeneficiaryAsync(beneficiaryUrl);
-       //         createPayoutVm.paymentDestination = beneficiary.t
-              //  if(createPayoutVm.)
 
                 if (createPayoutVm.paymentDestination == "mobile_money_wallet" && createPayoutVm.destinationCurrency == "KES")
                 {
@@ -58,7 +58,7 @@ namespace Fincra.Service
                     mobilePayoutModel.destinationCurrency = createPayoutVm.destinationCurrency;
                     mobilePayoutModel.description = createPayoutVm.description;
                     mobilePayoutModel.amount = createPayoutVm.amount;
-                   
+
                     mobilePayoutModel.beneficiary = _mapper.Map<BeneficiaryMobile>(beneficiary);
 
                     return await MobilePayout(mobilePayoutModel);
@@ -101,7 +101,7 @@ namespace Fincra.Service
 
                 throw ex;
             }
-            
+
         }
 
         public async Task<dynamic> FetchPayoutByCustomerReference(string customerReference)
@@ -120,12 +120,8 @@ namespace Fincra.Service
             string url = this.baseUrl + $"/payouts/reference/{transactionReference}";
 
             HttpResponseMessage result = await apiClient.GetAsync(url);
-             
+
             var responseStr = await result.Content.ReadAsStringAsync();
-
-            //var response = JsonConvert.DeserializeObject<dynamic>(responseStr,
-            //    new JsonSerializerSettings() { Culture = CultureInfo.InvariantCulture });
-
             return responseStr;
         }
 
@@ -133,7 +129,7 @@ namespace Fincra.Service
         {
             var client = new RestClient($"https://sandboxapi.fincra.com/core/banks?currency={listBanks.currency}&country={listBanks.country}");
             var request = new RestRequest(Method.GET);
-            request.AddHeader("Accept", "application/json");
+            request.AddHeader("Accept", "application / json");
             request.AddHeader("api-key", this.api_key);
 
             IRestResponse response = await client.ExecuteAsync(request);
@@ -147,15 +143,15 @@ namespace Fincra.Service
             var json = JsonConvert.SerializeObject(listPayouts);
 
             var client = new RestClient(url);
-            
+
             var request = new RestRequest(Method.GET);
             request.AddHeader("Accept", "application/json");
             request.AddHeader("Content-Type", "application/json");
             request.AddHeader("api-key", this.api_key);
 
-            request.AddParameter("application/json",json , ParameterType.RequestBody);
+            request.AddParameter("application/json", json, ParameterType.RequestBody);
             IRestResponse response = await client.ExecuteAsync(request);
-             
+
             return response.Content;
         }
 
@@ -169,9 +165,6 @@ namespace Fincra.Service
             var responseMsg = await apiClient.PostAsync(url, data);
 
             var responseStr = await responseMsg.Content.ReadAsStringAsync();
-
-            //dynamic response = JsonConvert.DeserializeObject<dynamic>(responseStr,
-            //    new JsonSerializerSettings() { Culture = CultureInfo.InvariantCulture });
 
             return responseStr;
         }
