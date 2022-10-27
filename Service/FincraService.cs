@@ -15,7 +15,7 @@ namespace Fincra.Service
     {
         private readonly string api_key;
         private readonly HttpClient apiClient;
-        private string baseUrl = @"https://sandboxapi.fincra.com";
+        private string baseUrl;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
 
@@ -29,6 +29,7 @@ namespace Fincra.Service
             apiClient.DefaultRequestHeaders.Add("api-key", this.api_key);
             _mapper = mapper;
             _configuration = configuration;
+            baseUrl = _configuration["FincraBaseURL"];
         }
 
         private async Task<Beneficiary> GetBeneficiaryAsync(string url)
