@@ -7,10 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["Fincra/Fincra.csproj", "Fincra/"]
-RUN dotnet restore "Fincra/Fincra.csproj"
+COPY ["Fincra.csproj", "."]
+RUN dotnet restore "./Fincra.csproj"
 COPY . .
-WORKDIR "/src/Fincra"
+WORKDIR "/src/."
 RUN dotnet build "Fincra.csproj" -c Release -o /app/build
 
 FROM build AS publish
