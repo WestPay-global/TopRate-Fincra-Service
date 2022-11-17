@@ -47,7 +47,7 @@ steps:
 
 - task: Docker@2
   inputs:
-    containerRegistry: 'westpay'
+    containerRegistry: 'westpayglobal container registry'
     repository: 'Fincra'
     command: 'buildAndPush'
     Dockerfile: 'Dockerfile'
