@@ -43,7 +43,7 @@ namespace Fincra.Services
         {
             Models.Dtos.Response.PayoutResponse response = null;
             PayoutStepSelectorFactory processorFactory = new PayoutStepSelectorFactory(_httpDataClient, _mapper, _configuration);
-            StepType stepType = createPayout.DestinationCurrecy.ToUpper() == AvailableCurrency.NGN.ToString() ? StepType.SAME : StepType.CROSS;
+            StepType stepType = createPayout.DestinationCurrecy.ToString().ToUpper() == AvailableCurrency.NGN.ToString() ? StepType.SAME : StepType.CROSS;
 
             var payoutResponse = await processorFactory.GetStep(createPayout, stepType);
             if (payoutResponse != null)

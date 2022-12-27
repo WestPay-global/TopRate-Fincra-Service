@@ -6,7 +6,7 @@ namespace Fincra.Models.Dtos.Request
     public class Payout
     {
         [Required]
-        public string DestinationCurrecy { get; set; }
+        public SupportedPayoutCurrency DestinationCurrecy { get; set; }
 
         [Required]
         public string Amount { get; set; }
