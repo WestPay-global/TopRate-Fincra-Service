@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Fincra.Configs;
 using Fincra.Factories;
 using Fincra.Interfaces;
 using Fincra.Interfaces.Factories;
@@ -30,6 +31,7 @@ namespace Fincra.Selectors
         {
             PayoutResponse payoutResponse = null;
             var quoteRequest = _mapper.Map<GenerateQuote>(payout);
+            quoteRequest.SourceCurrency = AvailableCurrency.USD.ToString();
             quoteRequest.TransactionType = _configuration["Quote:FeeBearer"];
             quoteRequest.FeeBearer = _configuration["Quote:TransactionType"];
             quoteRequest.Action = "receive";
@@ -40,10 +42,11 @@ namespace Fincra.Selectors
                 var payoutRequest = _mapper.Map<PayoutRequest>(payout);
                 payoutRequest.Business = _configuration["BusinessId"];
                 payoutRequest.QuoteReference = quoteResponse.Reference;
+                payoutRequest.Amount = quoteResponse.QuotedAmount;
+                payoutRequest.SourceCurrency = quoteResponse.SourceCurrency;
                 PayoutProcessorFactory processorFactory = new PayoutProcessorFactory(_httpDataClient, _mapper, _configuration);
                 payoutResponse = await processorFactory.GetProcessor(payoutRequest, payout.PaymentDestination, payout.Beneficiary);
             }
-
             return payoutResponse;
         }
 

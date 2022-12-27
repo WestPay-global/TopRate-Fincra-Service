@@ -22,6 +22,6 @@ namespace Fincra.Factories
             steps.Add(StepType.CROSS, new CrossCurrencySelector(httpDataClient, mapper, configuration));
         }
 
-        public async Task<PayoutResponse> GetStep(Payout payout) => await steps[payout.StepType].Select(payout);
+        public async Task<PayoutResponse> GetStep(Payout payout, StepType type) => await steps[type].Select(payout);
     }
 }

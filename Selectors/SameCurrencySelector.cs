@@ -1,8 +1,11 @@
 using System.Threading.Tasks;
 using AutoMapper;
+using Fincra.Configs;
+using Fincra.Factories;
 using Fincra.Interfaces;
 using Fincra.Interfaces.Factories;
 using Fincra.Models.Dtos.Request;
+using Fincra.Models.ThirdParty.Request;
 using Fincra.Models.ThirdParty.Response;
 using Microsoft.Extensions.Configuration;
 
@@ -22,9 +25,15 @@ namespace Fincra.Selectors
             _configuration = configuration;
         }
 
-        public Task<PayoutResponse> Select(Payout payout)
+        public async Task<PayoutResponse> Select(Payout payout)
         {
-            throw new System.NotImplementedException();
+            PayoutResponse payoutResponse = null;
+            var payoutRequest = _mapper.Map<PayoutRequest>(payout);
+            payoutRequest.Business = _configuration["BusinessId"];
+            payoutRequest.SourceCurrency = AvailableCurrency.NGN.ToString();
+            PayoutProcessorFactory processorFactory = new PayoutProcessorFactory(_httpDataClient, _mapper, _configuration);
+            payoutResponse = await processorFactory.GetProcessor(payoutRequest, payout.PaymentDestination, payout.Beneficiary);
+            return payoutResponse;
         }
     }
 }

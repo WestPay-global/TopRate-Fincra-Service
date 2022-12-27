@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Fincra.Configs;
 using Fincra.Factories;
 using Fincra.Interfaces;
 using Fincra.Models.Dtos.Request;
@@ -42,7 +43,9 @@ namespace Fincra.Services
         {
             Models.Dtos.Response.PayoutResponse response = null;
             PayoutStepSelectorFactory processorFactory = new PayoutStepSelectorFactory(_httpDataClient, _mapper, _configuration);
-            var payoutResponse = await processorFactory.GetStep(createPayout);
+            StepType stepType = createPayout.DestinationCurrecy.ToUpper() == AvailableCurrency.NGN.ToString() ? StepType.SAME : StepType.CROSS;
+
+            var payoutResponse = await processorFactory.GetStep(createPayout, stepType);
             if (payoutResponse != null)
             {
                 response = new Models.Dtos.Response.PayoutResponse
