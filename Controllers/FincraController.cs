@@ -1,6 +1,8 @@
-﻿using Fincra.Interfaces;
+﻿using Fincra.Filters;
+using Fincra.Interfaces;
 using Fincra.Models.Dtos.Request;
 using Fincra.Models.Dtos.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
@@ -29,6 +31,8 @@ namespace Fincra.Controllers
             return Ok(new BaseResponse<AccountVerification>(response, HttpStatusCode.Created, "Banks fetched"));
         }
 
+        [AllowAnonymous]
+        [ApiKey]
         [Route("CreatePayout")]
         [HttpPost]
         public async Task<IActionResult> CreatePayout([FromBody] Payout createPayout)
