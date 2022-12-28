@@ -4,5 +4,6 @@ namespace Fincra.Models.Dtos.Response
     {
         public string TransactionId { get; set; }
         public bool Status { get; set; }
+        public string Reference { get; set; }
     }
 }

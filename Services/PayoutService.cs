@@ -49,15 +49,10 @@ namespace Fincra.Services
                 response = new Models.Dtos.Response.PayoutResponse
                 {
                     Status = payoutResponse.Status.ToLower() == "successful",
-                    TransactionId = payoutResponse.CustomerReference
+                    TransactionId = payoutResponse.CustomerReference,
+                    Reference = payoutResponse.Reference
                 };
             return response;
-        }
-
-        public Task<Models.Dtos.Response.PayoutResponse> Process(Payout createPayout)
-        {
-
-            throw new System.NotImplementedException();
         }
 
         public async Task<AccountVerification> VerifyAccountNumber(VerifyAccountNumber verifyAccountNumber)

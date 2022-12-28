@@ -15,6 +15,8 @@ namespace Fincra.Models.ThirdParty.Request
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string QuoteReference { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string PaymentScheme { get; set; }
     }
 }
