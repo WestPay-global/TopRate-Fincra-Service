@@ -30,6 +30,7 @@ namespace Fincra.Selectors
             PayoutResponse payoutResponse = null;
             var payoutRequest = _mapper.Map<PayoutRequest>(payout);
             payoutRequest.Business = _configuration["BusinessId"];
+            payoutRequest.PaymentScheme = _configuration["PaymentScheme"];
             payoutRequest.SourceCurrency = AvailableCurrency.NGN.ToString();
             PayoutProcessorFactory processorFactory = new PayoutProcessorFactory(_httpDataClient, _mapper, _configuration);
             payoutResponse = await processorFactory.GetProcessor(payoutRequest, payout.PaymentDestination, payout.Beneficiary);

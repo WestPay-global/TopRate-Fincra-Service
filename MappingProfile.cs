@@ -11,7 +11,7 @@ namespace Fincra
             CreateMap<Models.Dtos.Request.Beneficiary, BankAccountBeneficiary>();
             CreateMap<Models.Dtos.Request.Beneficiary, MobileMoneyBeneficiary>();
             CreateMap<Payout, PayoutRequest>()
-                .ForMember(destinationMember => destinationMember.DestinationCurrecy, paymentDestination => paymentDestination.MapFrom(src => src.DestinationCurrecy.ToString().ToLower()))
+                .ForMember(destinationMember => destinationMember.DestinationCurrency, paymentDestination => paymentDestination.MapFrom(src => src.DestinationCurrecy.ToString().ToUpper()))
                 .ForMember(destinationMember => destinationMember.PaymentDestination, paymentDestination => paymentDestination.MapFrom(src => src.PaymentDestination.ToString().ToLower()))
                 .ForMember(destinationMember => destinationMember.Beneficiary, output => output.Ignore());
 
