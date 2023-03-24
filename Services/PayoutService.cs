@@ -17,14 +17,14 @@ namespace Fincra.Services
         private readonly IHttpDataClient _httpDataClient;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private readonly Dictionary<string, string> headers;
+        private readonly Dictionary<string, string> _headers;
 
         public PayoutService(IHttpDataClient httpDataClient, IMapper mapper, IConfiguration configuration)
         {
             _httpDataClient = httpDataClient;
             _mapper = mapper;
             _configuration = configuration;
-            headers = new Dictionary<string, string>() { { "api-key", _configuration["APIKey"] } };
+            _headers = new Dictionary<string, string>() { { "api-key", _configuration["APIKey"] } };
         }
 
         public async Task<List<Bank>> Banks(BankFilter filter)
@@ -32,7 +32,7 @@ namespace Fincra.Services
             List<Bank> banks = null;
             string url = _configuration["FincraBaseURL"] + $"/core/banks?currency={filter.Currency}&country={filter.Country}";
 
-            var response = await _httpDataClient.MakeRequest<FincraBaseResponse<List<Bank>>>(url, headers);
+            var response = await _httpDataClient.MakeRequest<FincraBaseResponse<List<Bank>>>(url, _headers);
             if (response != null)
                 banks = response.Data;
             return banks;
@@ -60,7 +60,7 @@ namespace Fincra.Services
             AccountVerification accountVerification = null;
             string url = _configuration["FincraBaseURL"] + "/core/accounts/resolve";
 
-            var response = await _httpDataClient.MakeRequest<FincraBaseResponse<AccountVerification>>(verifyAccountNumber, url, headers);
+            var response = await _httpDataClient.MakeRequest<FincraBaseResponse<AccountVerification>>(verifyAccountNumber, url, _headers);
             if (response != null)
                 accountVerification = response.Data;
             return accountVerification;

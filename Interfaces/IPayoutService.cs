@@ -7,7 +7,7 @@ namespace Fincra.Interfaces
 {
     public interface IPayoutService
     {
-        Task<Models.Dtos.Response.PayoutResponse> Payout(Payout createPayout);
+        Task<PayoutResponse> Payout(Payout createPayout);
         Task<AccountVerification> VerifyAccountNumber(VerifyAccountNumber verifyAccountNumber);
         Task<List<Bank>> Banks(BankFilter filter);
     }
