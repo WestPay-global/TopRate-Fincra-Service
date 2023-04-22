@@ -40,7 +40,6 @@ namespace Fincra.Controllers
             var response = await _payoutService.Payout(createPayout);
             if (response == null)
                 return BadRequest(new BaseResponse<dynamic>(null, HttpStatusCode.BadRequest, "Transaction failed"));
-
             return Created("", new BaseResponse<PayoutResponse>(response, HttpStatusCode.Created, "Created successfully"));
         }
 
