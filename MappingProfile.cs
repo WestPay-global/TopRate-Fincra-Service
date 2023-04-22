@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Fincra.Models;
+using Fincra.Models.Dtos.Request;
+using Fincra.Models.ThirdParty.Request;
 
 namespace Fincra
 {
@@ -7,11 +8,16 @@ namespace Fincra
     {
         public MappingProfile()
         {
-            CreateMap<CreatePayoutVm, CreatePayout>().ReverseMap();
-            CreateMap<Beneficiary, BeneficiaryDisbursmentNG>().ReverseMap();
-            CreateMap<Beneficiary, BeneficiaryDisbursment>().ReverseMap();
-            CreateMap<Beneficiary, BeneficiaryMobile>().ReverseMap();
+            CreateMap<Models.Dtos.Request.Beneficiary, BankAccountBeneficiary>();
+            CreateMap<Models.Dtos.Request.Beneficiary, MobileMoneyBeneficiary>();
+            CreateMap<Payout, PayoutRequest>()
+                .ForMember(destinationMember => destinationMember.DestinationCurrency, paymentDestination => paymentDestination.MapFrom(src => src.DestinationCurrecy.ToString().ToUpper()))
+                .ForMember(destinationMember => destinationMember.PaymentDestination, paymentDestination => paymentDestination.MapFrom(src => src.PaymentDestination.ToString().ToLower()))
+                .ForMember(destinationMember => destinationMember.Beneficiary, output => output.Ignore());
 
+            CreateMap<Payout, GenerateQuote>()
+              .ForMember(destinationMember => destinationMember.PaymentDestination, paymentDestination => paymentDestination.MapFrom(src => src.PaymentDestination.ToString().ToLower()));
+            CreateMap<Payout, TransferRequest>();
         }
     }
 }

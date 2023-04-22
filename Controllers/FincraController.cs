@@ -1,7 +1,11 @@
-﻿using Fincra.Models;
-using Fincra.Service;
+﻿using Fincra.Filters;
+using Fincra.Interfaces;
+using Fincra.Models.Dtos.Request;
+using Fincra.Models.Dtos.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Fincra.Controllers
@@ -10,10 +14,10 @@ namespace Fincra.Controllers
     [ApiController]
     public class FincraController : ControllerBase
     {
-        private readonly IFincra _fincra;
-        public FincraController(IFincra fincra)
+        private readonly IPayoutService _payoutService;
+        public FincraController(IPayoutService payoutService)
         {
-            this._fincra = fincra;
+            _payoutService = payoutService;
         }
 
 
@@ -21,49 +25,33 @@ namespace Fincra.Controllers
         [HttpPost]
         public async Task<IActionResult> VerifyAccountNumber([FromBody] VerifyAccountNumber verifyAccountNumber)
         {
-            return Ok(await _fincra.VerifyAccountNumber(verifyAccountNumber));
+            var response = await _payoutService.VerifyAccountNumber(verifyAccountNumber);
+            if (response == null)
+                return BadRequest(new BaseResponse<dynamic>(null, HttpStatusCode.BadRequest, "Failed to verify account"));
+            return Ok(new BaseResponse<AccountVerification>(response, HttpStatusCode.Created, "Banks fetched"));
         }
 
+        [AllowAnonymous]
+        [ApiKey]
         [Route("CreatePayout")]
         [HttpPost]
-        public async Task<string> CreatePayout([FromBody] CreatePayoutVm createPayout)
+        public async Task<IActionResult> CreatePayout([FromBody] Payout createPayout)
         {
-            return await _fincra.CreatePayoutFun(createPayout);
+            var response = await _payoutService.Payout(createPayout);
+            if (response == null)
+                return BadRequest(new BaseResponse<dynamic>(null, HttpStatusCode.BadRequest, "Transaction failed"));
+            return Created("", new BaseResponse<PayoutResponse>(response, HttpStatusCode.Created, "Created successfully"));
         }
 
-        [Route("WalletToWalletTransfer")]
-        [HttpPost]
-        public async Task<IActionResult> WalletToWalletTransfer([FromBody] WalletToWalletTransfer request)
-        {
-            return Ok(await _fincra.WalletToWalletTransfer(request));
-        }
-
-        [Route("FetchPayoutByReference")]
+        [Route("ListBanks")]
         [HttpGet]
-        public async Task<IActionResult> FetchPayoutByReference([Required][FromQuery] string transactionReference)
+        public async Task<IActionResult> GetListBanks([FromQuery] BankFilter filter)
         {
-            return Ok(await _fincra.FetchPayoutByReference(transactionReference));
-        }
+            var response = await _payoutService.Banks(filter);
+            if (response == null)
+                return BadRequest(new BaseResponse<dynamic>(null, HttpStatusCode.BadRequest, "Failed to get banks"));
 
-        [Route("FetchPayoutByCustomerReference")]
-        [HttpGet]
-        public async Task<IActionResult> FetchPayoutByCustomerReference([Required][FromQuery] string customerReference)
-        {
-            return Ok(await _fincra.FetchPayoutByCustomerReference(customerReference));
-        }
-
-        [Route("Get/ListPayouts")]
-        [HttpGet]
-        public async Task<IActionResult> GetListPayouts([FromQuery] ListPayouts listPayouts)
-        {
-            return Ok(await _fincra.GetListPayouts(listPayouts));
-        }
-
-        [Route("Get/ListBanks")]
-        [HttpGet]
-        public async Task<IActionResult> GetListBanks([FromQuery] ListBanks listBanks)
-        {
-            return Ok(await _fincra.GetListBanks(listBanks));
+            return Ok(new BaseResponse<List<Bank>>(response, HttpStatusCode.Created, "Banks fetched"));
         }
     }
 }
